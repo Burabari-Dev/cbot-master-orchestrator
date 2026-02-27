@@ -4,6 +4,12 @@ using System.Linq;
 
 namespace cTraderV1.Core
 {
+    /// <summary>
+    /// The RiskManager serves as the final gatekeeper, ensuring that no matter how 
+    /// aggressive a strategy's signal is, the portfolio remains protected.
+    /// By centralizing risk, you prevent "Strategy Overlap" (where multiple strategies 
+    /// drain your margin simultaneously) and ensure consistent position sizing based on account equity
+    /// </summary>
     public class RiskManager
     {
         private readonly Robot _bot;

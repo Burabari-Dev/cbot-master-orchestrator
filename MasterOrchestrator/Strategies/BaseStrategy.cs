@@ -4,6 +4,10 @@ using cTraderV1.Models;
 
 namespace cTraderV1.Strategies
 {
+    /// <summary>
+    /// To avoid writing the same code (like logging or drawing) in every strategy, 
+    /// we create an Abstract Base Class. This is a "template" for your strategies.
+    /// </summary>
     public abstract class BaseStrategy : ITradingStrategy
     {
         protected readonly Robot Bot;

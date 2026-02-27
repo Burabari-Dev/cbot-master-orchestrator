@@ -2,6 +2,9 @@ using System.Collections.Generic;
 
 namespace cTraderV1.Models
 {
+    /// <summary>
+    /// The SignalCollection is what the SignalEngine produces
+    /// </summary>
     public class SignalCollection
     {
         // Category 1: Potential triggers (e.g., RSI Cross)

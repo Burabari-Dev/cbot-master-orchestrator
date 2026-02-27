@@ -5,6 +5,13 @@ using System.Collections.Generic;
 
 namespace cTraderV1.Core
 {
+    /// <summary>
+    /// The SignalEngine is the "translator" of your architecture. Its job is to take raw 
+    /// market data (candles and indicators) and map them into the SignalCollection dictionary.
+    /// 
+    /// By centralizing this, you ensure that if three different strategies all use the RSI, 
+    /// the RSI is only calculated once, saving significant CPU resources during backtesting
+    /// </summary>
     public class SignalEngine
     {
         private readonly Robot _bot;
