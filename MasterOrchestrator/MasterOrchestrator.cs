@@ -1,32 +1,41 @@
-using System;
 using cAlgo.API;
-using cAlgo.API.Collections;
-using cAlgo.API.Indicators;
-using cAlgo.API.Internals;
+using cTraderV1.Core;
+using cTraderV1.Strategies; // You'll create specific strategies here
 
-namespace cAlgo.Robots;
-
-[Robot(AccessRights = AccessRights.None, AddIndicators = true)]
-public class MasterOrchestrator : Robot
+namespace cAlgo
 {
-    [Parameter(DefaultValue = "Hello world!")]
-    public string Message { get; set; }
-
-    protected override void OnStart()
+    [Robot(TimeZone = TimeZones.UTC, AccessRights = AccessRights.None)]
+    public class MasterOrchestrator : Robot
     {
-        // To learn more about cTrader Algo visit our Help Center:
-        // https://help.ctrader.com/ctrader-algo/
+        private SignalEngine _signalEngine;
+        private RiskManager _riskManager;
+        private StrategyManager _strategyManager;
 
-        Print(Message);
-    }
+        protected override void OnStart()
+        {
+            // 1. Initialize Core Services
+            _signalEngine = new SignalEngine(this);
+            _riskManager = new RiskManager(this);
+            _strategyManager = new StrategyManager(this);
 
-    protected override void OnTick()
-    {
-        // Handle price updates here
-    }
+            // 2. Register Strategies (Example)
+            // _strategyManager.RegisterStrategy(new TrendFollowStrategy(this, _riskManager));
+            
+            Print("V1 Architecture Online. Waiting for first bar...");
+        }
 
-    protected override void OnStop()
-    {
-        // Handle cBot stop here
+        protected override void OnBar()
+        {
+            // Step 1: Generate Signals
+            var signals = _signalEngine.GenerateSignals();
+
+            // Step 2: Dispatch to Strategy Manager
+            _strategyManager.ProcessOnBar(signals);
+        }
+
+        protected override void OnTick()
+        {
+            _strategyManager.ProcessOnTick();
+        }
     }
 }
