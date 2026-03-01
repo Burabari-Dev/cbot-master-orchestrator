@@ -1,0 +1,1001 @@
+
+<!DOCTYPE html>
+<html data-app-version="4.8.2">
+    <head>
+        <title>Historical Replay Report | cTrader</title>
+
+        <meta name="title" content="Historical Replay Report | cTrader">
+        <meta name="description" content="Backtesting report of a cBot from cTrader Algo: equity, trade statistics, parameters, used symbols, positions, orders, history.">
+
+        <meta name="author" content="Spotware Systems Ltd">
+
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+
+        <meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
+        <meta http-equiv="Content-Security-Policy" content="default-src * 'self' 'unsafe-eval' 'unsafe-inline' data: https: http: gap: ws: wss: blob: filesystem: file:">
+        <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <meta name="format-detection" content="telephone=no">
+
+        <style type="text/css" data-fela-rehydration="58" data-fela-type="KEYFRAME">@-webkit-keyframes spinner-k1{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}@-moz-keyframes spinner-k1{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}@keyframes spinner-k1{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}@-webkit-keyframes spinner-k2{0%{transform:rotate(0deg)}100%{transform:rotate(-360deg)}}@-moz-keyframes spinner-k2{0%{transform:rotate(0deg)}100%{transform:rotate(-360deg)}}@keyframes spinner-k2{0%{transform:rotate(0deg)}100%{transform:rotate(-360deg)}}</style><style type="text/css" data-fela-rehydration="58" data-fela-type="RULE">.spinner-a{position:absolute}.spinner-b{margin-left:auto}.spinner-c{margin-bottom:auto}.spinner-d{margin-right:auto}.spinner-e{margin-top:auto}.spinner-f{top:0}.spinner-g{bottom:0}.spinner-h{left:0}.spinner-i{right:0}.spinner-j{width:50px}.spinner-k{height:50px}.spinner-l{display:flex}.spinner-m{z-index:200}.spinner-n:before{content:""}.spinner-o:before{position:absolute}.spinner-p:before{border-style:solid}.spinner-q:before{border-top-left-radius:50%}.spinner-r:before{border-top-right-radius:50%}.spinner-s:before{border-bottom-right-radius:50%}.spinner-t:before{border-bottom-left-radius:50%}.spinner-u:before{display:inline-block}.spinner-v:before{box-sizing:border-box}.spinner-w:before{border-width:7px}.spinner-x:before{border-top-color:transparent}.spinner-y:before{border-left-color:transparent}.spinner-z:before{margin-top:7px}.spinner-ab:before{margin-right:7px}.spinner-ac:before{margin-bottom:7px}.spinner-ae:before{margin-left:7px}.spinner-af:before{width:calc(100% - 14px)}.spinner-ag:before{height:calc(100% - 14px)}.spinner-ah:before{border-right-color:#e75731}.spinner-ai:before{border-bottom-color:#e75731}.spinner-aj:before{animation-iteration-count:infinite}.spinner-ak:before{animation-timing-function:linear}.spinner-al:before{animation-duration:0.6s}.spinner-am:before{animation-name:spinner-k2}.spinner-an:after{content:""}.spinner-ao:after{position:absolute}.spinner-ap:after{border-style:solid}.spinner-aq:after{border-top-left-radius:50%}.spinner-ar:after{border-top-right-radius:50%}.spinner-as:after{border-bottom-right-radius:50%}.spinner-at:after{border-bottom-left-radius:50%}.spinner-au:after{display:inline-block}.spinner-av:after{box-sizing:border-box}.spinner-aw:after{border-width:7px}.spinner-ax:after{border-top-color:transparent}.spinner-ay:after{border-left-color:transparent}.spinner-az:after{width:100%}.spinner-ba:after{height:100%}.spinner-bb:after{border-right-color:rgba(36, 150, 73, 0.9)}.spinner-bc:after{border-bottom-color:rgba(36, 150, 73, 0.9)}.spinner-bd:after{animation-iteration-count:infinite}.spinner-be:after{animation-timing-function:linear}.spinner-bf:after{animation-duration:0.9s}.spinner-bg:after{animation-name:spinner-k1}</style>
+
+        <style>
+            html {
+                height: 100%;
+            }
+
+            body {
+                height: 100%;
+                margin: 0;
+                padding: 0;
+                overflow: hidden;
+            }
+
+            #root {
+                width: 100%;
+                height: 100%;
+            }
+        </style>
+
+        <!-- startBacktestingReport -->
+        <script type="application/json" id="backtesting-report">{
+  "main": {
+    "utcOffset": 0,
+    "language": "en",
+    "depositAsset": "EUR",
+    "depositAssetDigits": 2,
+    "period": "m5",
+    "symbol": "US TECH 100",
+    "brokerTitle": "Spotware",
+    "cBotName": "MasterOrchestrator",
+    "roi": 56.76,
+    "netProfit": 283.82,
+    "startingCapital": 500,
+    "endingEquity": 783.82,
+    "endingBalance": 252.74,
+    "testingPeriod": {
+      "duration": "1m 25d",
+      "startDate": 1767225600000,
+      "endDate": 1772064000000,
+      "formatted": "1m 25d (01-01-2026 - 26-02-2026)"
+    },
+    "accountType": "hedging",
+    "accountLeverage": 100,
+    "data": {
+      "type": "m1BarsFromServer",
+      "isCustom": false,
+      "customName": null
+    },
+    "spread": {
+      "type": "fixed",
+      "min": null,
+      "max": null,
+      "value": 1
+    },
+    "commissions": {
+      "type": "usdPerMillionUsdVolume",
+      "value": 0,
+      "applyCommissionAutomatically": false
+    },
+    "theme": "dark",
+    "titleKind": "backtesting",
+    "authorNickName": "burabaridev",
+    "authorLink": null,
+    "cBotLink": null,
+    "embedded": false
+  },
+  "equity": {
+    "points": [
+      {
+        "balance": 500,
+        "minEquity": 500,
+        "maxEquity": 500,
+        "timestamp": 1767225600000
+      },
+      {
+        "balance": 469.81,
+        "minEquity": 484.14,
+        "maxEquity": 499.75,
+        "timestamp": 1767625440000
+      },
+      {
+        "balance": 450.99,
+        "minEquity": 463.87,
+        "maxEquity": 476.17,
+        "timestamp": 1767712920000
+      },
+      {
+        "balance": 416.31,
+        "minEquity": 428.6,
+        "maxEquity": 460.15000000000003,
+        "timestamp": 1768232040000
+      },
+      {
+        "balance": 360.09000000000003,
+        "minEquity": 381.21,
+        "maxEquity": 982.75,
+        "timestamp": 1769181780000
+      },
+      {
+        "balance": 322.87,
+        "minEquity": 329.40000000000003,
+        "maxEquity": 405.79,
+        "timestamp": 1769461380000
+      },
+      {
+        "balance": 252.74,
+        "minEquity": 257.49,
+        "maxEquity": 523.41,
+        "timestamp": 1769708160000
+      }
+    ],
+    "maxBalanceDrawdownPercent": 49.452,
+    "maxEquityDrawdownPercent": 74.82502837377723,
+    "maxBalanceDrawdownAbsolute": 247.26,
+    "maxEquityDrawdownAbsolute": 1107.5900000000001
+  },
+  "tradeStatistics": {
+    "netProfit": {
+      "all": -247.26,
+      "long": -90.72,
+      "short": -156.54
+    },
+    "profitFactor": {
+      "all": 0,
+      "long": 0,
+      "short": 0
+    },
+    "commissions": {
+      "all": 0,
+      "long": 0,
+      "short": 0
+    },
+    "swaps": {
+      "all": -10.17,
+      "long": -1.27,
+      "short": -8.9
+    },
+    "totalTrades": {
+      "all": 6,
+      "long": 3,
+      "short": 3
+    },
+    "winningTrades": {
+      "all": 0,
+      "long": 0,
+      "short": 0
+    },
+    "maxConsecutiveWinningTrades": {
+      "all": 0,
+      "long": 0,
+      "short": 0
+    },
+    "largestWinningTrade": {
+      "all": 0,
+      "long": 0,
+      "short": 0
+    },
+    "losingTrades": {
+      "all": 6,
+      "long": 3,
+      "short": 3
+    },
+    "maxConsecutiveLosingTrades": {
+      "all": 6,
+      "long": 3,
+      "short": 3
+    },
+    "largestLosingTrade": {
+      "all": -70.13,
+      "long": -37.22,
+      "short": -70.13
+    },
+    "averageTrade": {
+      "all": -41.21,
+      "long": -30.24,
+      "short": -52.18
+    }
+  },
+  "parameters": [
+    {
+      "group": "Strategies",
+      "displayName": "Enable First Candle Scalper",
+      "propertyName": "EnableFirstCandleScalper",
+      "value": "true"
+    }
+  ],
+  "usedSymbols": [
+    {
+      "symbol": "US TECH 100",
+      "period": "m5",
+      "swapTime": "20:59",
+      "baseAsset": "Index",
+      "baseAssetDigits": 2,
+      "quoteAsset": "USD",
+      "quoteAssetDigits": 2,
+      "commissions": {
+        "type": "usdPerMillionUsdVolume",
+        "value": 0,
+        "applyCommissionAutomatically": false
+      },
+      "swapLong": -1.5,
+      "swapShort": -1.5,
+      "threeDaySwaps": "wednesday",
+      "weekendSwaps": false,
+      "swapPeriods": 24,
+      "gracePeriods": 0,
+      "digits": 2,
+      "lotSize": 1,
+      "stepVolume": 1,
+      "pipPosition": 0,
+      "swapCalculationType": "pips"
+    },
+    {
+      "symbol": "EURUSD",
+      "period": "m5",
+      "swapTime": "20:59",
+      "baseAsset": "EUR",
+      "baseAssetDigits": 2,
+      "quoteAsset": "USD",
+      "quoteAssetDigits": 2,
+      "commissions": {
+        "type": "usdPerMillionUsdVolume",
+        "value": 0,
+        "applyCommissionAutomatically": false
+      },
+      "swapLong": -2.445,
+      "swapShort": -0.105,
+      "threeDaySwaps": "wednesday",
+      "weekendSwaps": false,
+      "swapPeriods": 24,
+      "gracePeriods": 0,
+      "digits": 5,
+      "lotSize": 100000,
+      "stepVolume": 1000,
+      "pipPosition": 4,
+      "swapCalculationType": "pips"
+    }
+  ],
+  "positions": {
+    "columns": [
+      "id",
+      "symbol",
+      "quantity",
+      "volume",
+      "direction",
+      "entryPrice",
+      "tp",
+      "sl",
+      "commissions",
+      "closingCommissions",
+      "swaps",
+      "created",
+      "label",
+      "comment",
+      "pips",
+      "gross",
+      "net"
+    ],
+    "items": [
+      {
+        "id": 7,
+        "created": 1770130500000,
+        "quantity": 1,
+        "volume": 1,
+        "entryPrice": 25612.8,
+        "tp": 1,
+        "sl": 25703.899999999998,
+        "commissions": -0,
+        "closingCommissions": -0,
+        "swaps": -33.059999999999995,
+        "pips": 665.3,
+        "gross": 564.14,
+        "net": 531.08,
+        "label": "FirstCandleScalper",
+        "comment": null,
+        "symbol": "US TECH 100",
+        "direction": "sell"
+      }
+    ],
+    "marginUsed": 1058.87764879463,
+    "freeMargin": -275.0576487946299,
+    "marginLevel": 74.02366089153539,
+    "unrealizedNet": 531.08,
+    "unrealizedGross": 564.14
+  },
+  "orders": {
+    "columns": [
+      "id",
+      "direction",
+      "orderType",
+      "created",
+      "symbol",
+      "quantity",
+      "volume",
+      "submittedPrice",
+      "distance",
+      "tp",
+      "sl"
+    ],
+    "items": []
+  },
+  "history": {
+    "columns": [
+      "id",
+      "label",
+      "entryTime",
+      "symbol",
+      "quantity",
+      "volume",
+      "direction",
+      "entryPrice",
+      "commissions",
+      "swaps",
+      "closePrice",
+      "closeTime",
+      "net",
+      "pips",
+      "gross"
+    ],
+    "items": [
+      {
+        "symbol": "US TECH 100",
+        "direction": "sell",
+        "id": 2,
+        "net": -30.19,
+        "gross": -30.19,
+        "entryTime": 1767625200000,
+        "closeTime": 1767625440000,
+        "entryPrice": 25414.5,
+        "closePrice": 25450.1,
+        "commissions": 0,
+        "swaps": 0,
+        "volume": 1,
+        "label": "FirstCandleScalper",
+        "comment": null,
+        "balance": 469.81,
+        "quantity": 1,
+        "pips": -35.6
+      },
+      {
+        "symbol": "US TECH 100",
+        "direction": "buy",
+        "id": 4,
+        "net": -18.82,
+        "gross": -18.82,
+        "entryTime": 1767712500000,
+        "closeTime": 1767712920000,
+        "entryPrice": 25573.6,
+        "closePrice": 25551.4,
+        "commissions": 0,
+        "swaps": 0,
+        "volume": 1,
+        "label": "FirstCandleScalper",
+        "comment": null,
+        "balance": 450.99,
+        "quantity": 1,
+        "pips": -22.2
+      },
+      {
+        "symbol": "US TECH 100",
+        "direction": "buy",
+        "id": 6,
+        "net": -34.68,
+        "gross": -34.68,
+        "entryTime": 1768231500000,
+        "closeTime": 1768232040000,
+        "entryPrice": 25751.1,
+        "closePrice": 25710.2,
+        "commissions": 0,
+        "swaps": 0,
+        "volume": 1,
+        "label": "FirstCandleScalper",
+        "comment": null,
+        "balance": 416.31,
+        "quantity": 1,
+        "pips": -40.9
+      },
+      {
+        "symbol": "US TECH 100",
+        "direction": "sell",
+        "id": 8,
+        "net": -56.22,
+        "gross": -47.32,
+        "entryTime": 1768576500000,
+        "closeTime": 1769181780000,
+        "entryPrice": 25564.1,
+        "closePrice": 25619.9,
+        "commissions": 0,
+        "swaps": -8.9,
+        "volume": 1,
+        "label": "FirstCandleScalper",
+        "comment": null,
+        "balance": 360.09000000000003,
+        "quantity": 1,
+        "pips": -55.8
+      },
+      {
+        "symbol": "US TECH 100",
+        "direction": "buy",
+        "id": 10,
+        "net": -37.220000000000006,
+        "gross": -35.95,
+        "entryTime": 1769442600000,
+        "closeTime": 1769461380000,
+        "entryPrice": 25744.3,
+        "closePrice": 25701.9,
+        "commissions": 0,
+        "swaps": -1.27,
+        "volume": 1,
+        "label": "FirstCandleScalper",
+        "comment": null,
+        "balance": 322.87,
+        "quantity": 1,
+        "pips": -42.4
+      },
+      {
+        "symbol": "US TECH 100",
+        "direction": "sell",
+        "id": 12,
+        "net": -70.13,
+        "gross": -70.13,
+        "entryTime": 1769699400000,
+        "closeTime": 1769708160000,
+        "entryPrice": 25653.7,
+        "closePrice": 25736.4,
+        "commissions": 0,
+        "swaps": 0,
+        "volume": 1,
+        "label": "FirstCandleScalper",
+        "comment": null,
+        "balance": 252.74,
+        "quantity": 1,
+        "pips": -82.7
+      }
+    ]
+  },
+  "entries": {
+    "entriesByHours": {
+      "zero": {
+        "totalTrades": 0
+      },
+      "one": {
+        "totalTrades": 0
+      },
+      "two": {
+        "totalTrades": 0
+      },
+      "three": {
+        "totalTrades": 0
+      },
+      "four": {
+        "totalTrades": 0
+      },
+      "five": {
+        "totalTrades": 0
+      },
+      "six": {
+        "totalTrades": 0
+      },
+      "seven": {
+        "totalTrades": 0
+      },
+      "eight": {
+        "totalTrades": 0
+      },
+      "nine": {
+        "totalTrades": 0
+      },
+      "ten": {
+        "totalTrades": 0
+      },
+      "eleven": {
+        "totalTrades": 0
+      },
+      "twelve": {
+        "totalTrades": 0
+      },
+      "thirteen": {
+        "totalTrades": 0
+      },
+      "fourteen": {
+        "totalTrades": 1
+      },
+      "fifteen": {
+        "totalTrades": 6
+      },
+      "sixteen": {
+        "totalTrades": 0
+      },
+      "seventeen": {
+        "totalTrades": 0
+      },
+      "eighteen": {
+        "totalTrades": 0
+      },
+      "nineteen": {
+        "totalTrades": 0
+      },
+      "twenty": {
+        "totalTrades": 0
+      },
+      "twentyOne": {
+        "totalTrades": 0
+      },
+      "twentyTwo": {
+        "totalTrades": 0
+      },
+      "twentyThree": {
+        "totalTrades": 0
+      }
+    },
+    "entriesByWeekdays": {
+      "sunday": {
+        "totalTrades": 0
+      },
+      "monday": {
+        "totalTrades": 3
+      },
+      "tuesday": {
+        "totalTrades": 2
+      },
+      "wednesday": {
+        "totalTrades": 0
+      },
+      "thursday": {
+        "totalTrades": 1
+      },
+      "friday": {
+        "totalTrades": 1
+      },
+      "saturday": {
+        "totalTrades": 0
+      }
+    },
+    "entriesByMonths": {
+      "january": {
+        "totalTrades": 6
+      },
+      "february": {
+        "totalTrades": 1
+      },
+      "march": {
+        "totalTrades": 0
+      },
+      "april": {
+        "totalTrades": 0
+      },
+      "may": {
+        "totalTrades": 0
+      },
+      "june": {
+        "totalTrades": 0
+      },
+      "july": {
+        "totalTrades": 0
+      },
+      "august": {
+        "totalTrades": 0
+      },
+      "september": {
+        "totalTrades": 0
+      },
+      "october": {
+        "totalTrades": 0
+      },
+      "november": {
+        "totalTrades": 0
+      },
+      "december": {
+        "totalTrades": 0
+      }
+    }
+  },
+  "profitsLosses": {
+    "profitsLossesByHours": {
+      "zero": {
+        "winningTrades": 0,
+        "losingTrades": 0
+      },
+      "one": {
+        "winningTrades": 0,
+        "losingTrades": 0
+      },
+      "two": {
+        "winningTrades": 0,
+        "losingTrades": 0
+      },
+      "three": {
+        "winningTrades": 0,
+        "losingTrades": 0
+      },
+      "four": {
+        "winningTrades": 0,
+        "losingTrades": 0
+      },
+      "five": {
+        "winningTrades": 0,
+        "losingTrades": 0
+      },
+      "six": {
+        "winningTrades": 0,
+        "losingTrades": 0
+      },
+      "seven": {
+        "winningTrades": 0,
+        "losingTrades": 0
+      },
+      "eight": {
+        "winningTrades": 0,
+        "losingTrades": 0
+      },
+      "nine": {
+        "winningTrades": 0,
+        "losingTrades": 0
+      },
+      "ten": {
+        "winningTrades": 0,
+        "losingTrades": 0
+      },
+      "eleven": {
+        "winningTrades": 0,
+        "losingTrades": 0
+      },
+      "twelve": {
+        "winningTrades": 0,
+        "losingTrades": 0
+      },
+      "thirteen": {
+        "winningTrades": 0,
+        "losingTrades": 0
+      },
+      "fourteen": {
+        "winningTrades": 1,
+        "losingTrades": 0
+      },
+      "fifteen": {
+        "winningTrades": 0,
+        "losingTrades": 6
+      },
+      "sixteen": {
+        "winningTrades": 0,
+        "losingTrades": 0
+      },
+      "seventeen": {
+        "winningTrades": 0,
+        "losingTrades": 0
+      },
+      "eighteen": {
+        "winningTrades": 0,
+        "losingTrades": 0
+      },
+      "nineteen": {
+        "winningTrades": 0,
+        "losingTrades": 0
+      },
+      "twenty": {
+        "winningTrades": 0,
+        "losingTrades": 0
+      },
+      "twentyOne": {
+        "winningTrades": 0,
+        "losingTrades": 0
+      },
+      "twentyTwo": {
+        "winningTrades": 0,
+        "losingTrades": 0
+      },
+      "twentyThree": {
+        "winningTrades": 0,
+        "losingTrades": 0
+      }
+    },
+    "profitsLossesByWeekdays": {
+      "sunday": {
+        "winningTrades": 0,
+        "losingTrades": 0
+      },
+      "monday": {
+        "winningTrades": 0,
+        "losingTrades": 3
+      },
+      "tuesday": {
+        "winningTrades": 1,
+        "losingTrades": 1
+      },
+      "wednesday": {
+        "winningTrades": 0,
+        "losingTrades": 0
+      },
+      "thursday": {
+        "winningTrades": 0,
+        "losingTrades": 1
+      },
+      "friday": {
+        "winningTrades": 0,
+        "losingTrades": 1
+      },
+      "saturday": {
+        "winningTrades": 0,
+        "losingTrades": 0
+      }
+    },
+    "profitsLossesByMonth": {
+      "january": {
+        "winningTrades": 0,
+        "losingTrades": 6
+      },
+      "february": {
+        "winningTrades": 1,
+        "losingTrades": 0
+      },
+      "march": {
+        "winningTrades": 0,
+        "losingTrades": 0
+      },
+      "april": {
+        "winningTrades": 0,
+        "losingTrades": 0
+      },
+      "may": {
+        "winningTrades": 0,
+        "losingTrades": 0
+      },
+      "june": {
+        "winningTrades": 0,
+        "losingTrades": 0
+      },
+      "july": {
+        "winningTrades": 0,
+        "losingTrades": 0
+      },
+      "august": {
+        "winningTrades": 0,
+        "losingTrades": 0
+      },
+      "september": {
+        "winningTrades": 0,
+        "losingTrades": 0
+      },
+      "october": {
+        "winningTrades": 0,
+        "losingTrades": 0
+      },
+      "november": {
+        "winningTrades": 0,
+        "losingTrades": 0
+      },
+      "december": {
+        "winningTrades": 0,
+        "losingTrades": 0
+      }
+    }
+  },
+  "roi": {
+    "period1w": {
+      "totalRoi": -29.8119914465828,
+      "points": [
+        {
+          "timestamp": 1769181780000,
+          "roi": 0
+        },
+        {
+          "timestamp": 1769212800000,
+          "roi": 0
+        },
+        {
+          "timestamp": 1769472000000,
+          "roi": -10.336304812685725
+        },
+        {
+          "timestamp": 1769708160000,
+          "roi": -29.8119914465828
+        }
+      ]
+    },
+    "period1m": {
+      "totalRoi": -49.452,
+      "points": [
+        {
+          "timestamp": 1767225600000,
+          "roi": 0
+        },
+        {
+          "timestamp": 1767312000000,
+          "roi": 0
+        },
+        {
+          "timestamp": 1767657600000,
+          "roi": -6.037999999999999
+        },
+        {
+          "timestamp": 1767744000000,
+          "roi": -9.801999999999998
+        },
+        {
+          "timestamp": 1768262400000,
+          "roi": -16.738
+        },
+        {
+          "timestamp": 1769212800000,
+          "roi": -27.981999999999996
+        },
+        {
+          "timestamp": 1769472000000,
+          "roi": -35.425999999999995
+        },
+        {
+          "timestamp": 1769708160000,
+          "roi": -49.452
+        }
+      ]
+    },
+    "period3m": {
+      "totalRoi": -49.452,
+      "points": [
+        {
+          "timestamp": 1767225600000,
+          "roi": 0
+        },
+        {
+          "timestamp": 1767312000000,
+          "roi": 0
+        },
+        {
+          "timestamp": 1767657600000,
+          "roi": -6.037999999999999
+        },
+        {
+          "timestamp": 1767744000000,
+          "roi": -9.801999999999998
+        },
+        {
+          "timestamp": 1768262400000,
+          "roi": -16.738
+        },
+        {
+          "timestamp": 1769212800000,
+          "roi": -27.981999999999996
+        },
+        {
+          "timestamp": 1769472000000,
+          "roi": -35.425999999999995
+        },
+        {
+          "timestamp": 1769708160000,
+          "roi": -49.452
+        }
+      ]
+    },
+    "period6m": {
+      "totalRoi": -49.452,
+      "points": [
+        {
+          "timestamp": 1767225600000,
+          "roi": 0
+        },
+        {
+          "timestamp": 1767312000000,
+          "roi": 0
+        },
+        {
+          "timestamp": 1767657600000,
+          "roi": -6.037999999999999
+        },
+        {
+          "timestamp": 1767744000000,
+          "roi": -9.801999999999998
+        },
+        {
+          "timestamp": 1768262400000,
+          "roi": -16.738
+        },
+        {
+          "timestamp": 1769212800000,
+          "roi": -27.981999999999996
+        },
+        {
+          "timestamp": 1769472000000,
+          "roi": -35.425999999999995
+        },
+        {
+          "timestamp": 1769708160000,
+          "roi": -49.452
+        }
+      ]
+    },
+    "period1y": {
+      "totalRoi": -49.452,
+      "points": [
+        {
+          "timestamp": 1767225600000,
+          "roi": 0
+        },
+        {
+          "timestamp": 1767312000000,
+          "roi": 0
+        },
+        {
+          "timestamp": 1767657600000,
+          "roi": -6.037999999999999
+        },
+        {
+          "timestamp": 1767744000000,
+          "roi": -9.801999999999998
+        },
+        {
+          "timestamp": 1768262400000,
+          "roi": -16.738
+        },
+        {
+          "timestamp": 1769212800000,
+          "roi": -27.981999999999996
+        },
+        {
+          "timestamp": 1769472000000,
+          "roi": -35.425999999999995
+        },
+        {
+          "timestamp": 1769708160000,
+          "roi": -49.452
+        }
+      ]
+    },
+    "periodAll": {
+      "totalRoi": -49.452,
+      "points": [
+        {
+          "timestamp": 1767225600000,
+          "roi": 0
+        },
+        {
+          "timestamp": 1767312000000,
+          "roi": 0
+        },
+        {
+          "timestamp": 1767657600000,
+          "roi": -6.037999999999999
+        },
+        {
+          "timestamp": 1767744000000,
+          "roi": -9.801999999999998
+        },
+        {
+          "timestamp": 1768262400000,
+          "roi": -16.738
+        },
+        {
+          "timestamp": 1769212800000,
+          "roi": -27.981999999999996
+        },
+        {
+          "timestamp": 1769472000000,
+          "roi": -35.425999999999995
+        },
+        {
+          "timestamp": 1769708160000,
+          "roi": -49.452
+        }
+      ]
+    }
+  }
+}</script>
+        <!-- endBacktestingReport -->
+    </head>
+    <body>
+        <div class="spinner-a spinner-b spinner-c spinner-d spinner-e spinner-f spinner-g spinner-h spinner-i spinner-j spinner-k spinner-l spinner-m spinner-n spinner-o spinner-p spinner-q spinner-r spinner-s spinner-t spinner-u spinner-v spinner-w spinner-x spinner-y spinner-z spinner-ab spinner-ac spinner-ae spinner-af spinner-ag spinner-ah spinner-ai spinner-aj spinner-ak spinner-al spinner-am spinner-an spinner-ao spinner-ap spinner-aq spinner-ar spinner-as spinner-at spinner-au spinner-av spinner-aw spinner-ax spinner-ay spinner-az spinner-ba spinner-bb spinner-bc spinner-bd spinner-be spinner-bf spinner-bg waitingIndicator" data-test-id="loader"></div>
+        <div id="root"></div>
+
+            <script id="init" defer src="https://backtesting.ctrader.com/v5.0.0/bundle/index-31bd62a5e13b796fd66a.js"></script>
+
+        <script type="text/javascript" id="app-init">
+            var script = document.getElementById('init');
+            script.onload = () => {
+                initApp('root');
+
+                script.remove();
+                document.getElementById('app-init').remove();
+            }
+        </script>
+    </body>
+</html>
