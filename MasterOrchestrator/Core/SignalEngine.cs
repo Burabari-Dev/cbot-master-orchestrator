@@ -2,6 +2,7 @@ using cAlgo.API;
 using cAlgo.API.Indicators;
 using cTraderV1.Models;
 using System.Collections.Generic;
+using System;
 
 namespace cTraderV1.Core
 {
@@ -18,6 +19,9 @@ namespace cTraderV1.Core
 
     // Define Indicators here
     private AverageTrueRange _atr;
+
+    // Efficiency Filter Parameters
+    private const double EfficiencyMultiplier = 2.0;
 
     public SignalEngine(Robot bot)
     {
@@ -37,7 +41,6 @@ namespace cTraderV1.Core
     public SignalCollection GenerateSignals()
     {
       var signals = new SignalCollection();
-      var serverTime = _bot.Server.Time;
 
       // ==========================================================
       // STRATEGY: Signals shared by multiple strategies
@@ -50,6 +53,10 @@ namespace cTraderV1.Core
       signals.Confirmation["Bearish_Engulfing"] = IsBearishEngulfing();
       signals.Confirmation["Bullish_PinBar"] = IsBullishPinBar();
       signals.Confirmation["Bearish_PinBar"] = IsBearishPinBar();
+      signals.Confirmation["IsHighEfficiencyMove"] = IsHighEfficiencyMove();
+
+      // MMOS-1 Signal
+      signals.PreTrade["IsMajorMarketOpenWindow"] = IsInMajorMarketOpenWindow();
 
       // 3. In-Trade Signals (The "Exits/Management")
 
@@ -59,10 +66,13 @@ namespace cTraderV1.Core
       // STRATEGY: 1st Candle Scalper (NY Open)
       // ==========================================================
 
-      // Logic: Only calculate this at exactly 09:45 AM EST (the 15m candle close)
-      // Adjust the Hour/Minute based on your broker's server time offset
-      bool isNyOpenWindow = serverTime.Hour == 14 && serverTime.Minute == 45;
+      // 1. Define the New York Time Zone and convert server UTC time.
+      // This correctly handles all daylight saving time adjustments.
+      var nyZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
+      DateTime nyTime = TimeZoneInfo.ConvertTimeFromUtc(_bot.Server.TimeInUtc, nyZone);
 
+      // 2. Check if it's the close of the first 15m candle (9:45 AM NY time).
+      bool isNyOpenWindow = nyTime.Hour == 9 && nyTime.Minute == 45;
       if (isNyOpenWindow)
       {
         // 1. Compute 14-Day ATR
@@ -100,6 +110,76 @@ namespace cTraderV1.Core
       return signals;
     }
 
+    /// <summary>
+    /// Checks if the current time is within one hour of a major market open (UTC).
+    /// </summary>
+    private bool IsInMajorMarketOpenWindow() // Correctly handles Daylight Saving Time
+    {
+        var currentTimeUtc = _bot.Server.TimeInUtc;
+
+        // New York: Opens at 9:30 AM local time
+        var nyZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
+        var nyTime = TimeZoneInfo.ConvertTimeFromUtc(currentTimeUtc, nyZone);
+        if (nyTime.Hour == 9 && nyTime.Minute >= 30)
+            return true;
+
+        // London: Opens at 8:00 AM local time
+        var londonZone = TimeZoneInfo.FindSystemTimeZoneById("GMT Standard Time");
+        var londonTime = TimeZoneInfo.ConvertTimeFromUtc(currentTimeUtc, londonZone);
+        if (londonTime.Hour == 8)
+            return true;
+
+        // Tokyo: Opens at 9:00 AM local time (Japan does not observe DST)
+        var tokyoZone = TimeZoneInfo.FindSystemTimeZoneById("Tokyo Standard Time");
+        var tokyoTime = TimeZoneInfo.ConvertTimeFromUtc(currentTimeUtc, tokyoZone);
+        if (tokyoTime.Hour == 9)
+            return true;
+
+        // Sydney: Opens at 10:00 AM local time
+        var sydneyZone = TimeZoneInfo.FindSystemTimeZoneById("AUS Eastern Standard Time");
+        var sydneyTime = TimeZoneInfo.ConvertTimeFromUtc(currentTimeUtc, sydneyZone);
+        if (sydneyTime.Hour == 10)
+            return true;
+
+        return false;
+    }
+
+    /// <summary>
+    /// Calculates if the most recent bar's price movement per tick is significantly
+    /// higher than the recent average, indicating a high-quality move.
+    /// </summary>
+    private bool IsHighEfficiencyMove()
+    {
+        int lookback = 6;
+        // Need enough bars for the lookback period plus the current bar.
+        if (_bot.Bars.Count < lookback + 2) return false;
+
+        // We use Index 1 for the candle that just closed
+        double currentMove = Math.Abs(_bot.Bars.ClosePrices.Last(1) - _bot.Bars.OpenPrices.Last(1));
+        double currentTicks = _bot.Bars.TickVolumes.Last(1);
+
+        if (currentTicks == 0) return false;
+
+        double currentEff = currentMove / currentTicks;
+
+        // Average efficiency over the last 'lookback' candles (from index 2 to lookback+1)
+        double sumEff = 0;
+        for (int i = 2; i <= lookback + 1; i++)
+        {
+            double move = Math.Abs(_bot.Bars.ClosePrices.Last(i) - _bot.Bars.OpenPrices.Last(i));
+            double ticks = _bot.Bars.TickVolumes.Last(i);
+            if (ticks > 0)
+            {
+                sumEff += (move / ticks);
+            }
+        }
+
+        double avgEff = sumEff / lookback;
+
+        // A high-efficiency move occurs if the current bar's efficiency is a multiple of the average.
+        return currentEff > (avgEff * EfficiencyMultiplier);
+    }
+
     #region Candlestick Pattern Methods
 
     private bool IsBullishEngulfing()
@@ -117,7 +197,15 @@ namespace cTraderV1.Core
         // Current bar's body must engulf the previous bar's body
         bool isEngulfing = currentBar.Open < previousBar.Close && currentBar.Close > previousBar.Open;
 
-        return isPreviousBearish && isCurrentBullish && isEngulfing;
+        // New Rule: Wicks must be small, indicating a strong move.
+        double totalCandleSize = currentBar.High - currentBar.Low;
+        if (totalCandleSize == 0) return false; // Avoid division by zero on doji candles
+
+        double upperWick = currentBar.High - currentBar.Close;
+        double lowerWick = currentBar.Open - currentBar.Low;
+        bool hasSmallWicks = (upperWick / totalCandleSize < 0.05) && (lowerWick / totalCandleSize < 0.05);
+
+        return isPreviousBearish && isCurrentBullish && isEngulfing && hasSmallWicks;
     }
 
     private bool IsBearishEngulfing()
@@ -134,29 +222,51 @@ namespace cTraderV1.Core
         // Current bar's body must engulf the previous bar's body
         bool isEngulfing = currentBar.Open > previousBar.Close && currentBar.Close < previousBar.Open;
 
-        return isPreviousBullish && isCurrentBearish && isEngulfing;
+        // New Rule: Wicks must be small, indicating a strong move.
+        double totalCandleSize = currentBar.High - currentBar.Low;
+        if (totalCandleSize == 0) return false; // Avoid division by zero on doji candles
+
+        double upperWick = currentBar.High - currentBar.Open;
+        double lowerWick = currentBar.Close - currentBar.Low;
+        bool hasSmallWicks = (upperWick / totalCandleSize < 0.05) && (lowerWick / totalCandleSize < 0.05);
+
+        return isPreviousBullish && isCurrentBearish && isEngulfing && hasSmallWicks;
     }
 
     private bool IsBullishPinBar()
     {
         var bar = _bot.Bars.Last(1);
         double bodySize = System.Math.Abs(bar.Open - bar.Close);
+        if (bodySize == 0) return false; // Cannot have a wick 4x a zero-sized body
+
         double lowerWick = System.Math.Min(bar.Open, bar.Close) - bar.Low;
         double upperWick = bar.High - System.Math.Max(bar.Open, bar.Close);
+        double totalCandleSize = bar.High - bar.Low;
+        if (totalCandleSize == 0) return false; // Avoid division by zero
 
-        // Long lower wick (at least 2x body), small upper wick (less than body size)
-        return lowerWick > bodySize * 2 && upperWick < bodySize;
+        // New Rule: Long lower wick (>= 4x body), small upper wick (< 4% of total candle size)
+        bool isLongLowerWick = lowerWick >= bodySize * 4;
+        bool isSmallUpperWick = upperWick < totalCandleSize * 0.04;
+
+        return isLongLowerWick && isSmallUpperWick;
     }
 
     private bool IsBearishPinBar()
     {
         var bar = _bot.Bars.Last(1);
         double bodySize = System.Math.Abs(bar.Open - bar.Close);
+        if (bodySize == 0) return false; // Cannot have a wick 4x a zero-sized body
+
         double upperWick = bar.High - System.Math.Max(bar.Open, bar.Close);
         double lowerWick = System.Math.Min(bar.Open, bar.Close) - bar.Low;
+        double totalCandleSize = bar.High - bar.Low;
+        if (totalCandleSize == 0) return false; // Avoid division by zero
 
-        // Long upper wick (at least 2x body), small lower wick (less than body size)
-        return upperWick > bodySize * 2 && lowerWick < bodySize;
+        // New Rule: Long upper wick (>= 4x body), small lower wick (< 4% of total candle size)
+        bool isLongUpperWick = upperWick >= bodySize * 4;
+        bool isSmallLowerWick = lowerWick < totalCandleSize * 0.04;
+
+        return isLongUpperWick && isSmallLowerWick;
     }
 
     #endregion

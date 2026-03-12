@@ -28,5 +28,10 @@ namespace cTraderV1.Strategies
             CurrentState = StrategyState.Idle;
             Bot.Print($"{Name} reset to Idle.");
         }
+
+        public virtual void Dispose()
+        {
+            // Base implementation can be empty.
+        }
     }
 }

@@ -46,5 +46,10 @@ namespace cTraderV1.Core
         /// reset variables, or prepare for a new run without restarting the cBot.
         /// </summary>
         void Reset();
+
+        /// <summary>
+        /// Called by the master cBot on stop. Use this to clean up resources like event subscriptions.
+        /// </summary>
+        void Dispose();
     }
 }

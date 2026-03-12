@@ -60,15 +60,18 @@ namespace cTraderV1.Core
         /// <summary>
         /// Calculates volume based on a percentage of equity and the distance to Stop Loss.
         /// </summary>
-        public double CalculateVolume(double stopLossPips)
+        public double CalculateVolume(double stopLossDistanceInPrice)
         {
             double riskAmount = _bot.Account.Equity * (MaxRiskPerTradePercent / 100);
-            
-            // Calculate volume based on pip value
-            // Note: This is a simplified calculation; cTrader's Symbol.VolumeInUnits 
-            // varies by asset class (Forex vs Indices).
-            double volume = _bot.Symbol.QuantityToVolumeInUnits(riskAmount / (stopLossPips * _bot.Symbol.PipValue));
-            
+
+            // This is a universal formula that works for Forex, Indices, and Commodities.
+            // It calculates how much quantity of the asset you can trade for your given risk amount and stop loss distance.
+            double quantity = riskAmount / stopLossDistanceInPrice;
+
+            // Convert the asset quantity (e.g., 100 ounces of gold) to the broker's volume format (e.g., 1 lot).
+            double volume = _bot.Symbol.QuantityToVolumeInUnits(quantity);
+
+            // Normalize the volume to the nearest valid step for the symbol.
             return _bot.Symbol.NormalizeVolumeInUnits(volume, RoundingMode.ToNearest);
         }
     }

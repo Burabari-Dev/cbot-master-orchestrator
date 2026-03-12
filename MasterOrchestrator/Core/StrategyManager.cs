@@ -64,6 +64,18 @@ namespace cTraderV1.Core
             }
         }
 
+        /// <summary>
+        /// Cleans up all registered strategies.
+        /// </summary>
+        public void DisposeAll()
+        {
+            foreach (var strategy in _allStrategies)
+            {
+                strategy.Dispose();
+            }
+            _bot.Print("[StrategyManager] All strategies disposed.");
+        }
+
         // Returns a list for the Master Bot to display status if needed
         public List<ITradingStrategy> GetActiveStrategies() => _allStrategies;
     }

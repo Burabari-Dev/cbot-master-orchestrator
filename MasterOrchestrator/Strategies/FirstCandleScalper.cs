@@ -11,6 +11,9 @@ namespace cTraderV1.Strategies
         public override string Name => "FirstCandleScalper";
         private readonly RiskManager _riskManager;
 
+        // --- Strategy Parameters ---
+        private const double VolumeInLots = 0.1;
+
         // Strategy-specific state
         private double _firstCandleHigh;
         private double _firstCandleLow;
@@ -53,7 +56,7 @@ namespace cTraderV1.Strategies
 
             if (isNyOpenWindow && isLiquidityCandle)
             {
-                Bot.Print($"[{Name}] NY Open liquidity candle detected. Moving to WaitingForReversal.");
+                Bot.Print($"[{Name}] NY Open liquidity candle detected. Waiting for Reversal.");
 
                 _firstCandleHigh = signals.Values["1stCandle_High"];
                 _firstCandleLow = signals.Values["1stCandle_Low"];
@@ -62,9 +65,11 @@ namespace cTraderV1.Strategies
                 _expirationTime = Bot.Server.Time.AddMinutes(90);
 
                 var startTime = Bot.Bars.Last(3).OpenTime;
-                var endTime = Bot.Server.Time;
+                // To get the bar duration, we calculate the difference between the open times of two consecutive bars.
+                var barDuration = Bot.Bars.Last(1).OpenTime - Bot.Bars.Last(2).OpenTime;
+                var endTime = Bot.Bars.Last(1).OpenTime.Add(barDuration);
                 var boxColor = _firstCandleDirection == "BULLISH" ? Color.FromArgb(50, Color.LightGreen) : Color.FromArgb(50, Color.PaleVioletRed);
-                Bot.Chart.DrawRectangle($"{Name}_Box", startTime, _firstCandleHigh, endTime, _firstCandleLow, boxColor, 1, LineStyle.Solid);
+                Bot.Chart.DrawRectangle($"{Name}_Box", startTime, _firstCandleHigh, endTime, _firstCandleLow, boxColor, 4, LineStyle.Solid);
 
                 CurrentState = StrategyState.WaitingConfirmation;
                 Bot.Print($"[{Name}] Setup valid until {_expirationTime}. Direction: {_firstCandleDirection}. Waiting for reversal signal.");
@@ -86,22 +91,46 @@ namespace cTraderV1.Strategies
             bool isBullishReversal = signals.Confirmation.ContainsKey("Bullish_Engulfing") && signals.Confirmation["Bullish_Engulfing"] ||
                                      signals.Confirmation.ContainsKey("Bullish_PinBar") && signals.Confirmation["Bullish_PinBar"];
 
+            double firstCandleSize = _firstCandleHigh - _firstCandleLow;
+            double maxStopLossSize = firstCandleSize * 0.25;
+            double profitTargetDistance = firstCandleSize * 0.75;
+
             if (_firstCandleDirection == "BULLISH" && isBearishReversal)
             {
                 double entryPrice = Bot.Symbol.Bid;
-                double stopLossPrice = reversalBar.High;
-                double stopLossDistance = stopLossPrice - entryPrice;
-                if (stopLossDistance <= 0) return; // Avoid invalid SL
-                double takeProfitPrice = entryPrice - stopLossDistance; // 1:1 R/R
+                double naturalStopLossPrice = reversalBar.High;
+                double stopLossDistance = naturalStopLossPrice - entryPrice;
+                double stopLossPrice = naturalStopLossPrice;
+
+                // Rule 1: Stop loss must be valid. If it's too large, adjust it to the max allowed size.
+                if (stopLossDistance <= 0) return; // Invalid stop, skip trade.
+                if (stopLossDistance > maxStopLossSize)
+                {
+                    stopLossPrice = entryPrice + maxStopLossSize;
+                    Bot.Print($"[{Name}] SELL stop loss adjusted from {naturalStopLossPrice:F5} to {stopLossPrice:F5} to meet risk rules.");
+                }
+
+                // Rule 2: Set take profit based on a factor of the first candle's size.
+                double takeProfitPrice = entryPrice - profitTargetDistance;
                 ExecuteTrade(TradeType.Sell, stopLossPrice, takeProfitPrice);
             }
             else if (_firstCandleDirection == "BEARISH" && isBullishReversal)
             {
                 double entryPrice = Bot.Symbol.Ask;
-                double stopLossPrice = reversalBar.Low;
-                double stopLossDistance = entryPrice - stopLossPrice;
-                if (stopLossDistance <= 0) return; // Avoid invalid SL
-                double takeProfitPrice = entryPrice + stopLossDistance; // 1:1 R/R
+                double naturalStopLossPrice = reversalBar.Low;
+                double stopLossDistance = entryPrice - naturalStopLossPrice;
+                double stopLossPrice = naturalStopLossPrice;
+
+                // Rule 1: Stop loss must be valid. If it's too large, adjust it to the max allowed size.
+                if (stopLossDistance <= 0) return; // Invalid stop, skip trade.
+                if (stopLossDistance > maxStopLossSize)
+                {
+                    stopLossPrice = entryPrice - maxStopLossSize;
+                    Bot.Print($"[{Name}] BUY stop loss adjusted from {naturalStopLossPrice:F5} to {stopLossPrice:F5} to meet risk rules.");
+                }
+
+                // Rule 2: Set take profit based on a factor of the first candle's size.
+                double takeProfitPrice = entryPrice + profitTargetDistance;
                 ExecuteTrade(TradeType.Buy, stopLossPrice, takeProfitPrice);
             }
         }
@@ -122,21 +151,22 @@ namespace cTraderV1.Strategies
         private void ExecuteTrade(TradeType tradeType, double stopLossPrice, double takeProfitPrice)
         {
             double entryPrice = (tradeType == TradeType.Buy) ? Bot.Symbol.Ask : Bot.Symbol.Bid;
-            double stopLossPips = Math.Abs(entryPrice - stopLossPrice) / Bot.Symbol.PipSize;
+            double stopLossDistance = Math.Abs(entryPrice - stopLossPrice);
 
-            if (!_riskManager.ValidateTrade(Name, tradeType, stopLossPips))
+            if (!_riskManager.ValidateTrade(Name, tradeType, stopLossDistance / Bot.Symbol.PipSize))
             {
                 return; // Risk validation failed
             }
 
-            double volume = _riskManager.CalculateVolume(stopLossPips);
-            var result = Bot.ExecuteMarketOrder(tradeType, Bot.Symbol.Name, volume, Name, stopLossPips, takeProfitPrice);
+            double volume = Bot.Symbol.NormalizeVolumeInUnits(VolumeInLots * Bot.Symbol.LotSize);
+            // Use the overload that takes absolute SL/TP prices to avoid any ambiguity with pips.
+            var result = Bot.ExecuteMarketOrder(tradeType, Bot.Symbol.Name, volume, Name, stopLossPrice, takeProfitPrice);
 
             if (result.IsSuccessful)
             {
                 _activePosition = result.Position;
-                Bot.Print($"[{Name}] Trade executed successfully. Position ID: {_activePosition.Id}");
                 CurrentState = StrategyState.Active;
+                Bot.Print($"[{Name}] {tradeType} trade executed successfully. Position ID: {_activePosition.Id}");
 
                 var iconType = tradeType == TradeType.Buy ? ChartIconType.UpArrow : ChartIconType.DownArrow;
                 var iconColor = tradeType == TradeType.Buy ? Color.DodgerBlue : Color.Crimson;
@@ -179,6 +209,12 @@ namespace cTraderV1.Strategies
             Bot.Chart.RemoveObject($"{Name}_Box");
 
             base.Reset(); // This sets the state to Idle and prints a message
+        }
+
+        public override void Dispose()
+        {
+            Bot.Positions.Closed -= OnPositionClosed;
+            base.Dispose();
         }
     }
 }

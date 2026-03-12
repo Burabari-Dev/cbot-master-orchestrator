@@ -8,8 +8,18 @@ namespace cAlgo
     public class MasterOrchestrator : Robot
     {
         // --- Strategy Toggles ---
-        [Parameter("Enable First Candle Scalper", Group = "Strategies", DefaultValue = true)]
+        [Parameter("First Candle Scalper", Group = "Strategies", DefaultValue = true)]
         public bool EnableFirstCandleScalper { get; set; }
+
+        [Parameter("Major Markets Open Scalper", Group = "Strategies", DefaultValue = false)]
+        public bool EnableMajorMarketsOpenScalper { get; set; }
+
+        [Parameter("XxxReversal", Group = "Strategies", DefaultValue = false)]
+        public bool EnableXxxReversal { get; set; }
+
+        [Parameter("3 Days Reversal", Group = "Strategies", DefaultValue = false)]
+        public bool EnableFirst3DaysReversal { get; set; }
+
         // -------------------------
 
 
@@ -40,6 +50,21 @@ namespace cAlgo
             {
                 _strategyManager.RegisterStrategy(new FirstCandleScalper(this, _riskManager));
             }
+
+            if (EnableMajorMarketsOpenScalper)
+            {
+                _strategyManager.RegisterStrategy(new MajorMarketsOpenScalper_1(this));
+            }
+
+            if (EnableXxxReversal)
+            {
+                _strategyManager.RegisterStrategy(new XxxReversal(this, _riskManager));
+            }
+
+            if (EnableFirst3DaysReversal)
+            {
+                _strategyManager.RegisterStrategy(new First3DaysReversal(this, _riskManager));
+            }
             
             Print("Master Orchestrator Online. Waiting for market data...");
         }
@@ -56,6 +81,11 @@ namespace cAlgo
         protected override void OnTick()
         {
             _strategyManager.ProcessOnTick();
+        }
+
+        protected override void OnStop()
+        {
+            _strategyManager.DisposeAll();
         }
     }
 }
