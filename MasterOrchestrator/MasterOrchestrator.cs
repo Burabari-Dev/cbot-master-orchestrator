@@ -19,6 +19,9 @@ namespace cAlgo
 
         [Parameter("3 Days Reversal", Group = "Strategies", DefaultValue = false)]
         public bool EnableFirst3DaysReversal { get; set; }
+        
+        [Parameter("Trade Volume Index Strategy", Group = "Strategies", DefaultValue = false)]
+        public bool EnableTradeVolumeIndexStrategy { get; set; }
 
         // -------------------------
 
@@ -64,6 +67,11 @@ namespace cAlgo
             if (EnableFirst3DaysReversal)
             {
                 _strategyManager.RegisterStrategy(new First3DaysReversal(this, _riskManager));
+            }
+            
+            if (EnableTradeVolumeIndexStrategy)
+            {
+                _strategyManager.RegisterStrategy(new TradeVolumeIndexStrategy(this, _riskManager));
             }
             
             Print("Master Orchestrator Online. Waiting for market data...");
