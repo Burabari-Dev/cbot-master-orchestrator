@@ -23,6 +23,9 @@ namespace cAlgo
         [Parameter("Trade Volume Index Strategy", Group = "Strategies", DefaultValue = false)]
         public bool EnableTradeVolumeIndexStrategy { get; set; }
 
+        [Parameter("TVI With Trend Strategy", Group = "Strategies", DefaultValue = false)]
+        public bool EnableTVIWithTrendStrategy { get; set; }
+
         // -------------------------
 
 
@@ -72,6 +75,11 @@ namespace cAlgo
             if (EnableTradeVolumeIndexStrategy)
             {
                 _strategyManager.RegisterStrategy(new TradeVolumeIndexStrategy(this, _riskManager));
+            }
+
+            if (EnableTVIWithTrendStrategy)
+            {
+                _strategyManager.RegisterStrategy(new TVIWithTrendStrategy(this, _riskManager));
             }
             
             Print("Master Orchestrator Online. Waiting for market data...");
