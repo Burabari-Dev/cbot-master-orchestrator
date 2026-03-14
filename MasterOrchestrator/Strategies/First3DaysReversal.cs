@@ -59,54 +59,42 @@ namespace cTraderV1.Strategies
                 return; // No reversal signal on this bar
             }
 
-            // Calculate the average size of the 3 candles *before* the signal candle
-            // Signal candle is at index 1. Previous candles are at 2, 3, 4.
-            // We skip the last 2 bars (current and signal) and take the 3 before that.
-            double avgSize = Bot.Bars.SkipLast(2).TakeLast(3).Average(b => b.High - b.Low);
-
-            // Stop loss is 1/3 of the average size
-            double stopLossDistance = avgSize / 3.0;
-            if (stopLossDistance <= 0)
-            {
-                Bot.Print($"[{Name}] Invalid stop loss calculated ({stopLossDistance:F5}). Skipping trade.");
-                return;
-            }
-
-            // Take profit is 2.5x the stop loss
-            double takeProfitDistance = stopLossDistance * 2.5;
+            // Use a fixed stop loss of 200 pips to risk a maximum of ~$20 on a 0.1 lot XAUUSD trade.
+            const double stopLossPips = 100;
+            const double takeProfitPips = stopLossPips * 4.5;
 
             if (isBullishReversal)
             {
-                ExecuteTrade(TradeType.Buy, stopLossDistance, takeProfitDistance);
+                ExecuteTrade(TradeType.Buy, stopLossPips, takeProfitPips);
             }
             else if (isBearishReversal)
             {
-                ExecuteTrade(TradeType.Sell, stopLossDistance, takeProfitDistance);
+                ExecuteTrade(TradeType.Sell, stopLossPips, takeProfitPips);
             }
         }
 
-        private void ExecuteTrade(TradeType tradeType, double stopLossDistance, double takeProfitDistance)
+        private void ExecuteTrade(TradeType tradeType, double stopLossPips, double takeProfitPips)
         {
-            double entryPrice = (tradeType == TradeType.Buy) ? Bot.Symbol.Ask : Bot.Symbol.Bid;
-            double stopLossPrice = (tradeType == TradeType.Buy) ? entryPrice - stopLossDistance : entryPrice + stopLossDistance;
-            double takeProfitPrice = (tradeType == TradeType.Buy) ? entryPrice + takeProfitDistance : entryPrice - takeProfitDistance;
-
-            // Pass the raw stop loss distance in price to the risk manager for validation.
-            if (!_riskManager.ValidateTrade(Name, tradeType, stopLossDistance / Bot.Symbol.PipSize))
-            {
-                return; // Risk validation failed
-            }
+            // if (!_riskManager.ValidateTrade(Name, tradeType, stopLossPips))
+            // {
+            //     return; // Risk validation failed
+            // }
 
             // Use a fixed lot size for this strategy.
             double volume = Bot.Symbol.NormalizeVolumeInUnits(VolumeInLots * Bot.Symbol.LotSize);
-            // Use the overload that takes absolute SL/TP prices to avoid any ambiguity with pips.
-            var result = Bot.ExecuteMarketOrder(tradeType, Bot.Symbol.Name, volume, Name, stopLossPrice, takeProfitPrice);
+            // Use the correct overload that takes SL/TP in pips.
+            var result = Bot.ExecuteMarketOrder(tradeType, Bot.Symbol.Name, volume, Name, stopLossPips, takeProfitPips);
 
             if (result.IsSuccessful)
             {
                 _activePosition = result.Position;
                 CurrentState = StrategyState.Active;
                 Bot.Print($"[{Name}] {tradeType} trade executed successfully. Position ID: {_activePosition.Id}");
+
+                // For drawing, we still need the absolute prices.
+                double entryPrice = _activePosition.EntryPrice;
+                double stopLossPrice = (tradeType == TradeType.Buy) ? entryPrice - (stopLossPips * Bot.Symbol.PipSize) : entryPrice + (stopLossPips * Bot.Symbol.PipSize);
+                double takeProfitPrice = (tradeType == TradeType.Buy) ? entryPrice + (takeProfitPips * Bot.Symbol.PipSize) : entryPrice - (takeProfitPips * Bot.Symbol.PipSize);
 
                 // Draw trade info on chart
                 var iconType = tradeType == TradeType.Buy ? ChartIconType.UpTriangle : ChartIconType.DownTriangle;

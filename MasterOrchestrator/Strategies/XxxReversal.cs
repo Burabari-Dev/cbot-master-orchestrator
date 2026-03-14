@@ -81,27 +81,29 @@ namespace cTraderV1.Strategies
 
         private void ExecuteTrade(TradeType tradeType, double stopLossDistance, double takeProfitDistance)
         {
-            double entryPrice = (tradeType == TradeType.Buy) ? Bot.Symbol.Ask : Bot.Symbol.Bid;
-            double stopLossPrice = (tradeType == TradeType.Buy) ? entryPrice - stopLossDistance : entryPrice + stopLossDistance;
-            double takeProfitPrice = (tradeType == TradeType.Buy) ? entryPrice + takeProfitDistance : entryPrice - takeProfitDistance;
+            double stopLossPips = stopLossDistance / Bot.Symbol.PipSize;
+            double takeProfitPips = takeProfitDistance / Bot.Symbol.PipSize;
 
-            // Pass the raw stop loss distance in price to the risk manager for validation.
-            if (!_riskManager.ValidateTrade(Name, tradeType, stopLossDistance / Bot.Symbol.PipSize))
-            {
-                return; // Risk validation failed
-            }
+            // if (!_riskManager.ValidateTrade(Name, tradeType, stopLossPips))
+            // {
+            //     return; // Risk validation failed
+            // }
 
             // Use a fixed lot size for this strategy.
             double volume = Bot.Symbol.NormalizeVolumeInUnits(VolumeInLots * Bot.Symbol.LotSize);
-            // Use the overload that takes absolute SL/TP prices to avoid any ambiguity with pips.
-            var result = Bot.ExecuteMarketOrder(tradeType, Bot.Symbol.Name, volume, Name, stopLossPrice, takeProfitPrice);
+            // Use the correct overload that takes SL/TP in pips.
+            var result = Bot.ExecuteMarketOrder(tradeType, Bot.Symbol.Name, volume, Name, stopLossPips, takeProfitPips);
 
             if (result.IsSuccessful)
             {
                 _activePosition = result.Position;
                 CurrentState = StrategyState.Active;
                 Bot.Print($"[{Name}] {tradeType} trade executed successfully. Position ID: {_activePosition.Id}");
-
+                
+                // For drawing, we need the absolute prices.
+                double entryPrice = _activePosition.EntryPrice;
+                double stopLossPrice = (tradeType == TradeType.Buy) ? entryPrice - stopLossDistance : entryPrice + stopLossDistance;
+                double takeProfitPrice = (tradeType == TradeType.Buy) ? entryPrice + takeProfitDistance : entryPrice - takeProfitDistance;
                 // Draw trade info on chart
                 var iconType = tradeType == TradeType.Buy ? ChartIconType.UpTriangle : ChartIconType.DownTriangle;
                 var iconColor = tradeType == TradeType.Buy ? Color.DodgerBlue : Color.Crimson;

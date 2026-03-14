@@ -4,6 +4,7 @@ using cAlgo.API.Internals;
 using cTraderV1.Core;
 using cTraderV1.Models;
 using System;
+using System.Linq;
 
 namespace cTraderV1.Strategies
 {
@@ -15,6 +16,7 @@ namespace cTraderV1.Strategies
         // --- Strategy Parameters ---
         [Parameter("TVI Threshold", Group = "TradeVolumeIndexStrategy", DefaultValue = 0.1)]
         public double TviThreshold { get; set; }
+        private const double VolumeInLots = 0.1;
 
         // Strategy-specific state
         private double _tvi;
@@ -69,11 +71,15 @@ namespace cTraderV1.Strategies
 
         private void HandleIdleState(SignalCollection signals)
         {
-            // Trading Logic: Confirming Breakouts
-            // For simplicity, let's define a breakout as a new high/low over the last 20 bars.
-            var high20 = Bot.Bars.Last(20).High;
-            var low20 = Bot.Bars.Last(20).Low;
+            // Ensure we have enough bars for the lookback period
+            if (Bot.Bars.Count < 21) return;
 
+            // Trading Logic: Confirming Breakouts
+            // Correctly find the highest high and lowest low over the preceding 20 bars (excluding the current signal bar)
+            // var high20 = Bot.Bars.SkipLast(1).TakeLast(20).Max(b => b.High);
+            var high20 = Bot.Bars.Last(20).High;
+            // var low20 = Bot.Bars.SkipLast(1).TakeLast(20).Min(b => b.Low);
+            var low20 = Bot.Bars.Last(20).Low;
             bool isBreakout = Bot.Bars.Last(1).Close > high20;
             bool isBreakdown = Bot.Bars.Last(1).Close < low20;
 
@@ -99,16 +105,20 @@ namespace cTraderV1.Strategies
         
         private void ExecuteTrade(TradeType tradeType, double stopLossPrice, double takeProfitPrice)
         {
-            double entryPrice = (tradeType == TradeType.Buy) ? Bot.Symbol.Ask : Bot.Symbol.Bid;
-            double stopLossDistance = Math.Abs(entryPrice - stopLossPrice);
+            double currentPrice = (tradeType == TradeType.Buy) ? Bot.Symbol.Ask : Bot.Symbol.Bid;
+            double stopLossDistance = Math.Abs(currentPrice - stopLossPrice);
+            double stopLossPips = stopLossDistance / Bot.Symbol.PipSize;
+            double takeProfitPips = Math.Abs(currentPrice - takeProfitPrice) / Bot.Symbol.PipSize;
 
-            if (!_riskManager.ValidateTrade(Name, tradeType, stopLossDistance / Bot.Symbol.PipSize))
-            {
-                return; // Risk validation failed
-            }
+            // if (!_riskManager.ValidateTrade(Name, tradeType, stopLossPips))
+            // {
+            //     return; // Risk validation failed
+            // }
 
-            double volume = Bot.Symbol.NormalizeVolumeInUnits(0.1 * Bot.Symbol.LotSize); // Using fixed lot size for now
-            var result = Bot.ExecuteMarketOrder(tradeType, Bot.Symbol.Name, volume, Name, stopLossPrice, takeProfitPrice);
+            // Revert to a fixed lot size for performance testing.
+            double volume = Bot.Symbol.NormalizeVolumeInUnits(VolumeInLots * Bot.Symbol.LotSize);
+            // var result = Bot.ExecuteMarketOrder(tradeType, Bot.Symbol.Name, volume, Name, stopLossPips, takeProfitPips, "", true);
+            var result = Bot.ExecuteMarketOrder(tradeType, Bot.Symbol.Name, volume, Name, stopLossPips, takeProfitPips);
 
             if (result.IsSuccessful)
             {

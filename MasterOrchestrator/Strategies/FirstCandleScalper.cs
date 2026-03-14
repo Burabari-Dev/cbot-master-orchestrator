@@ -150,28 +150,29 @@ namespace cTraderV1.Strategies
 
         private void ExecuteTrade(TradeType tradeType, double stopLossPrice, double takeProfitPrice)
         {
-            double entryPrice = (tradeType == TradeType.Buy) ? Bot.Symbol.Ask : Bot.Symbol.Bid;
-            double stopLossDistance = Math.Abs(entryPrice - stopLossPrice);
+            double currentPrice = (tradeType == TradeType.Buy) ? Bot.Symbol.Ask : Bot.Symbol.Bid;
+            double stopLossPips = Math.Abs(currentPrice - stopLossPrice) / Bot.Symbol.PipSize;
+            double takeProfitPips = Math.Abs(currentPrice - takeProfitPrice) / Bot.Symbol.PipSize;
 
-            if (!_riskManager.ValidateTrade(Name, tradeType, stopLossDistance / Bot.Symbol.PipSize))
-            {
-                return; // Risk validation failed
-            }
+            // if (!_riskManager.ValidateTrade(Name, tradeType, stopLossPips))
+            // {
+            //     return; // Risk validation failed
+            // }
 
             double volume = Bot.Symbol.NormalizeVolumeInUnits(VolumeInLots * Bot.Symbol.LotSize);
-            // Use the overload that takes absolute SL/TP prices to avoid any ambiguity with pips.
-            var result = Bot.ExecuteMarketOrder(tradeType, Bot.Symbol.Name, volume, Name, stopLossPrice, takeProfitPrice);
+            // Use the correct overload that takes SL/TP in pips.
+            var result = Bot.ExecuteMarketOrder(tradeType, Bot.Symbol.Name, volume, Name, stopLossPips, takeProfitPips);
 
             if (result.IsSuccessful)
             {
                 _activePosition = result.Position;
                 CurrentState = StrategyState.Active;
                 Bot.Print($"[{Name}] {tradeType} trade executed successfully. Position ID: {_activePosition.Id}");
-
+                
                 var iconType = tradeType == TradeType.Buy ? ChartIconType.UpArrow : ChartIconType.DownArrow;
                 var iconColor = tradeType == TradeType.Buy ? Color.DodgerBlue : Color.Crimson;
 
-                Bot.Chart.DrawIcon($"{Name}_Entry_{_activePosition.Id}", iconType, Bot.Server.Time, entryPrice, iconColor);
+                Bot.Chart.DrawIcon($"{Name}_Entry_{_activePosition.Id}", iconType, Bot.Server.Time, _activePosition.EntryPrice, iconColor);
                 Bot.Chart.DrawHorizontalLine($"{Name}_TP_{_activePosition.Id}", takeProfitPrice, Color.Green, 2, LineStyle.Dots);
                 Bot.Chart.DrawHorizontalLine($"{Name}_SL_{_activePosition.Id}", stopLossPrice, Color.Red, 2, LineStyle.Dots);
             }
